@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/29ee0bc57e.js" crossorigin="anonymous">
+    </script>
+    <title>ToDo List</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
+
+/* Resetting the document */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Style the header */
+header {
+  background: linear-gradient(90deg, rgba(131,58,180,1) 0%,
+                                     rgba(253,29,29,1) 50%, 
+                                     rgba(252,176,69,1) 100%);
+  padding: 30px 40px;
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  font-family: 'Acme', sans-serif;
+  letter-spacing: 2px;
+  margin-bottom: 15px;;
+}
+
+input {
+  width: 75%;
+  margin-right: 0;
+  padding: 10px;
+  border: none;
+  font-size: 14px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.addBtn {
+  width: 25%;
+  padding: 10px;
+  margin-left:0;
+  background: #d9d9d9;
+  color: #555;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+}
+
+.addBtn:hover {
+  background-color: #bbb;
+  color: #FFF;
+}
+
+/* Style the list items */
+ul li {
+  cursor: pointer;
+  position: relative;
+  padding: 12px 8px 12px 40px;
+  list-style-type: none;
+  background: #eee;
+  font-size: 14px;
+  transition: 0.2s;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+
+  /* make the list items unselectable */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Set all odd list items to a different color (zebra-stripes) */
+ul li:nth-child(odd) {
+  background: #b2bec3;
+}
+
+/* Darker background-color on hover */
+ul li:hover {
+  background: #ddd;
+}
+
+/* When clicked on, add a background color and strike out text */
+ul li.checked {
+  background: #888;
+  color: #fff;
+  text-decoration: line-through;
+}
+
+/* Add a "checked" mark when clicked on */
+ul li.checked::before {
+  content: "";
+  position: absolute;
+  border-color: #fff;
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+  top: 10px;
+  left: 16px;
+  transform: rotate(45deg);
+  height: 15px;
+  width: 7px;
+}
+
+/* Style the trash button */
+.far {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 12px 16px 12px 16px;
+}
+
+.far:hover {
+  background-color: tomato;
+  color: white;
+}
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>To Do List</h1>
+      <input type="text" id="myInput" placeholder="Things to be done..." />
+      <span class="addBtn" id="add_button">Add</span>
+    </header>
+    <ul id="myUL">
+      
+    </ul>
+    <script>
+
+  
+// TO-DO !
+
+const todoList = [];
+
+const todoListElement = document.querySelector("#myUL");
+
+document.querySelector("#add_button").addEventListener("click", addTodo);
+document.querySelector("#myInput").addEventListener("keydown", function(e) {
+  if (e.keyCode == 13) {
+    addTodo()
+  }
+});
+
+//-------GETTING VALUES FROM INPUT TO ARRAY OF OBJECTS-------
+function addTodo() {
+  const todoText = document.querySelector("#myInput").value;
+
+  if (todoText == "") {
+    alert("You did not enter any item");
+  } else {
+    const todoObject = {
+      id: todoList.length,
+      todoText: todoText,
+      isDone: false,
+    };
+
+    //---WITH UNSHIFT WE ADD THE NEW ELEMENT TO THE BEGINNING OF THE ARRAY
+    //--SO THAT THE NEW ITEMS SHOW UP ON TOP
+    todoList.unshift(todoObject);
+    displayTodos();
+  }
+}
+
+//------CHANGING THE isDone VALUE TO TRUE WHEN THE ELEMENT IS CLICKED
+//------OR TO FALSE IF IT WAS TRUE BEFORE
+function doneTodo(todoId) {
+  const selectedTodoIndex = todoList.findIndex((item) => item.id == todoId);
+
+  todoList[selectedTodoIndex].isDone
+    ? (todoList[selectedTodoIndex].isDone = false)
+    : (todoList[selectedTodoIndex].isDone = true);
+  displayTodos();
+}
+
+//----TO DELETE AN ITEM; FROM THE LIST
+function deleteItem(x) {
+  todoList.splice(
+    todoList.findIndex((item) => item.id == x),
+    1
+  );
+  displayTodos();
+}
+
+//---------DISPLAYING THE ENTERED ITEMS ON THE SCREEN------
+function displayTodos() {
+  todoListElement.innerHTML = "";
+  document.querySelector("#myInput").value = "";
+
+  todoList.forEach((item) => {
+    const listElement = document.createElement("li");
+    const delBtn = document.createElement("i");
+
+    listElement.innerHTML = item.todoText;
+    listElement.setAttribute("data-id", item.id);
+
+    delBtn.setAttribute("data-id", item.id);
+    delBtn.classList.add("far");
+    delBtn.classList.add("fa-trash-alt");
+    delBtn.setAttribute("data-id", item.id);
+
+    if (item.isDone) {
+      listElement.classList.add("checked");
+    }
+
+    listElement.addEventListener("click", function (e) {
+      const selectedId = e.target.getAttribute("data-id");
+      doneTodo(selectedId);
+    });
+
+    delBtn.addEventListener("click", function (e) {
+      const delId = e.target.getAttribute("data-id");
+      deleteItem(delId);
+    });
+
+    todoListElement.appendChild(listElement);
+    listElement.appendChild(delBtn);
+  });
+}
+
+    </script>
+</body>
+</html>
